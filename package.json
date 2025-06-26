@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "npx ts-node-dev --respawn index.ts",
     "build": "tsc",
-    "start": "npm run build && node dist/index.js"
+    "start": "tsc && node dist/index.js"
   },
   "keywords": [],
   "author": "",

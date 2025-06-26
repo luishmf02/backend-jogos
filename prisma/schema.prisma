@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgres"
+  url      = env("DATABASE_URL")
+}
+
+model Estudio {
+  id    Int    @id @default(autoincrement())
+  nome  String
+  jogos Jogo[]
+
+  @@map("estudios")
+}
+
+model Jogo {
+  id            Int         @id @default(autoincrement())
+  titulo        String
+  preco         Decimal     @db.Decimal(10, 2)
+  anoLancamento Int
+  descricao     String?
+  genero        Genero
+  destaque      Boolean     @default(true)
+  capa          String
+  estudioId     Int
+  estudio       Estudio     @relation(fields: [estudioId], references: [id])
+  imagens       Imagem[]
+  interacoes    Interacao[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("jogos")
+}
+
+model Imagem {
+  id      Int    @id @default(autoincrement())
+  url     String
+  legenda String @db.VarChar(100)
+  jogo    Jogo   @relation(fields: [jogoId], references: [id])
+  jogoId  Int
+
+  @@map("imagens")
+}
+
+model Cliente {
+  id                Int         @id @default(autoincrement())
+  nome              String
+  email             String      @unique
+  senha             String
+  codigoRecuperacao String?
+  interacoes        Interacao[]
+
+  @@map("clientes")
+}
+
+model Interacao {
+  id        Int      @id @default(autoincrement())
+  mensagem  String
+  nota      Int?
+  clienteId Int
+  jogoId    Int
+  cliente   Cliente  @relation(fields: [clienteId], references: [id])
+  jogo      Jogo     @relation(fields: [jogoId], references: [id])
+  criadoEm  DateTime @default(now())
+
+  @@map("interacoes")
+}
+
+enum Genero {
+  ACAO
+  AVENTURA
+  RPG
+  ESTRATEGIA
+  SIMULACAO
+  ESPORTE
+  CORRIDA
+  TERROR
+}
+
+
+enum NivelAcesso {
+  ADMIN
+  SUPERADMIN
+}
+
+model Admin {
+  id           Int          @id @default(autoincrement())
+  nome         String
+  email        String       @unique
+  senha        String
+  nivelAcesso  NivelAcesso
+  criadoEm     DateTime     @default(now())
+}

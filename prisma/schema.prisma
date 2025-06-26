@@ -60,6 +60,7 @@ model Interacao {
   id        Int      @id @default(autoincrement())
   mensagem  String
   nota      Int?
+  resposta  String?   // ✅ campo adicionado
   clienteId Int
   jogoId    Int
   cliente   Cliente  @relation(fields: [clienteId], references: [id])
@@ -68,6 +69,7 @@ model Interacao {
 
   @@map("interacoes")
 }
+
 
 enum Genero {
   ACAO

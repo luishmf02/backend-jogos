@@ -1,23 +1,24 @@
-
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "segredo_super_secreto";
+export const verificaToken = (req: Request, res: Response, next: NextFunction) => {
+  const token = req.headers.authorization?.split(" ")[1];
 
-export function verificaToken(req: Request, res: Response, next: NextFunction) {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader) {
-    return res.status(401).json({ erro: "Token não fornecido." });
+  if (!token) {
+    return res.status(401).json({ mensagem: "Token não fornecido." });
   }
-
-  const [, token] = authHeader.split(" ");
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.admin = decoded;
-    next();
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
+
+    // ✅ Garante que decoded é um objeto (JwtPayload)
+    if (typeof decoded === "object" && decoded !== null) {
+      req.admin = decoded as any; // se quiser, pode criar um tipo AdminTokenPayload mais tarde
+      return next();
+    }
+
+    return res.status(401).json({ mensagem: "Token inválido." });
   } catch (err) {
-    return res.status(401).json({ erro: "Token inválido." });
+    return res.status(401).json({ mensagem: "Token inválido." });
   }
-}
+};
